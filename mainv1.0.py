@@ -12,7 +12,7 @@ def deco(func):
 class Window:
     def __init__(self, root):
         self.root = root
-        self.root.title('Realme adb Tool v1.2')
+        self.root.title('Realme adb Tool v1.1')
         # self.root.resizable(width=False, height=False)
         screenwidth = self.root.winfo_screenwidth()
         screenheight = self.root.winfo_screenheight()
@@ -56,7 +56,6 @@ class Window:
         l3.pack(side='left',pady=5)
         self.l4.pack(side='left')
         b2.pack(side='left',padx=20)
-
 
         frame_mainApp = tk.LabelFrame(frame_double_2,text='已安装App',relief='sunken',bd=1)
         frame_secondApp = tk.LabelFrame(frame_double_2,text='已分身App',relief='sunken',bd=1)
@@ -121,7 +120,7 @@ class Window:
         frame_about_2 = tk.LabelFrame(self.frame_about,text='打赏作者',fg='blue')
         frame_about_1.pack(pady=2)
         frame_about_2.pack(pady=2)
-        inf = ['版本\t：v1.1\t\t\t日期\t：2021/11/28','作者邮箱\t：xxzh1020@qq.com\tB站\t：@小晓张']
+        inf = ['版本\t：v1.0\t日期\t：2021/11/07','作者邮箱\t：xxzh1020@qq.com\t酷安\t：@小小张']
         for i in inf:
             tk.Label(frame_about_1,text=i,anchor='w',font=('微软雅黑',10)).pack(fill='x')
 
@@ -179,26 +178,23 @@ class Window:
             self.l2.config(fg='red')
             self.loadTab(False)
             return False
-       
 
     def loadSecondUser(self):
-        result = os.popen('adb shell pm list users').read().strip()
+        result = os.popen('adb shell pm list users').read().strip().encode().decode('utf-8')
         print(result)
         userReg = re.findall('UserInfo\{([0-9]+):.+:.+\} running', result)
         if len(userReg)<1:
             self.secondUserID.set('未识别')
             self.l4.config(fg='red')
             self.currentSecondUser = False
-        elif len(userReg)>=2:
-            if '999' in userReg:
-                self.secondUserID.set('999')
-                self.l4.config(fg='green')
-                self.currentSecondUser = '999'
-            else:
-                self.secondUserID.set(f'没有识别到分身用户ID“999”')
-                self.l4.config(fg='orange')
-                self.currentSecondUser = False
-
+        elif len(userReg)==2:
+            self.secondUserID.set(userReg[-1])
+            self.l4.config(fg='green')
+            self.currentSecondUser = userReg[-1]
+        else:
+            self.secondUserID.set(f'识别到{len(userReg)}个用户，暂不支持')
+            self.l4.config(fg='orange')
+            self.currentSecondUser = False
     @deco
     def loadMainPackages(self):
         result = os.popen('adb shell pm list packages -3').read()
@@ -364,7 +360,6 @@ class Window:
         a = messagebox.askokcancel(title='确认信息',message='你确定要重启到Bootloader吗？')
         if a:
             result = os.popen('adb reboot bootloader')  
-
 
 
 if __name__ == '__main__':
