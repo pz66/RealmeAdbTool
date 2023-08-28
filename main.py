@@ -211,16 +211,19 @@ class Window:
         if user_reg:
             user_ids, user_names = tuple(zip(*user_reg))
             print(user_ids, user_names)
-            if "999" in user_ids:
-                self.secondUserID.set('999')
-                self.l4.config(fg='green')
-                self.currentSecondUser = '999'
-                return True
+            for id in user_ids:
+                find_id = re.search("9\d\d", id)
+                if find_id:
+                    user_id = find_id.group(0)
+                    self.secondUserID.set(user_id)
+                    self.l4.config(fg='green')
+                    self.currentSecondUser = user_id
+                    return True
             for index, name in enumerate(user_names):
                 if re.search(r"Multi.*App", name, re.I):
-                    self.secondUserID.set('999')
+                    self.secondUserID.set(user_ids[index])
                     self.l4.config(fg='green')
-                    self.currentSecondUser = '999'
+                    self.currentSecondUser = user_ids[index]
                     return True
 
         if len(user_reg) < 1:
@@ -228,7 +231,7 @@ class Window:
             self.l4.config(fg='red')
             self.currentSecondUser = False
         else:
-            self.secondUserID.set(f'没有识别到分身用户ID“999”')
+            self.secondUserID.set(f'没有识别到分身用户ID')
             self.l4.config(fg='orange')
             self.currentSecondUser = False
 
