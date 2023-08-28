@@ -7,23 +7,27 @@ from tkinter import ttk, messagebox
 
 import windnd
 
+VERSION = "1.2.1"
+DATE = "2023/8/28"
+
 
 def deco(func):
     # 线程装饰器
-    def wrapper(*args, **kwargs):
+    def wrapper(*args):
         t = threading.Thread(target=func, args=(*args,))
         t.start()
+
     return wrapper
 
 
 class Window:
     def __init__(self, root_obj):
         self.root = root_obj
-        self.root.title('Realme adb Tool v1.2')
+        self.root.title(f'Realme adb Tool v{VERSION}')
         # self.root.resizable(width=False, height=False)
         screenwidth = self.root.winfo_screenwidth()
         screenheight = self.root.winfo_screenheight()
-        size = '%dx%d+%d+%d' % (600, 400, (screenwidth - 550) / 2, (screenheight - 400) / 2)
+        size = '%dx%d+%d+%d' % (700, 600, (screenwidth - 650) / 2, (screenheight - 600) / 2)
         self.root.geometry(size)
         self.notebookStatus = False
         self.currentSecondUser = False
@@ -39,6 +43,10 @@ class Window:
         tk.Label(frame_status, text='作者：小小张').pack(side='left')
 
         # 主界面中的小Frame
+        with open("help.txt", 'r', encoding="utf-8") as f:
+            info = f.read().strip()
+        label_help = tk.Label(frame_root, text=info, justify='left', anchor='w')
+        label_help.pack(fill='x', ipady=10)
         frame_inf = tk.Frame(frame_root, bg='lightgrey')
         frame_inf.pack(pady=10)
 
@@ -136,7 +144,7 @@ class Window:
         frame_about_2 = tk.LabelFrame(self.frame_about, text='打赏作者', fg='blue')
         frame_about_1.pack(pady=2)
         frame_about_2.pack(pady=2)
-        inf = ['版本\t：v1.1\t\t\t日期\t：2021/11/28', '作者邮箱\t：xxzh1020@qq.com\tB站\t：@小晓张']
+        inf = [f'版本\t：{VERSION}\t\t\t日期\t：{DATE}', '作者邮箱\t：xxzh1020@qq.com\tB站\t：@小晓张']
         for i in inf:
             tk.Label(frame_about_1, text=i, anchor='w', font=('微软雅黑', 10)).pack(fill='x')
 
@@ -199,20 +207,30 @@ class Window:
     def loadSecondUser(self):
         result = os.popen('adb shell pm list users').read().strip()
         print(result)
-        userReg = re.findall('UserInfo\{([0-9]+):.+:.+\} running', result)
-        if len(userReg) < 1:
-            self.secondUserID.set('未识别')
-            self.l4.config(fg='red')
-            self.currentSecondUser = False
-        elif len(userReg) >= 2:
-            if '999' in userReg:
+        user_reg = re.findall(r'UserInfo\{(\d+):(.+?):.+\} running', result)
+        if user_reg:
+            user_ids, user_names = tuple(zip(*user_reg))
+            print(user_ids, user_names)
+            if "999" in user_ids:
                 self.secondUserID.set('999')
                 self.l4.config(fg='green')
                 self.currentSecondUser = '999'
-            else:
-                self.secondUserID.set(f'没有识别到分身用户ID“999”')
-                self.l4.config(fg='orange')
-                self.currentSecondUser = False
+                return True
+            for index, name in enumerate(user_names):
+                if re.search(r"Multi.*App", name, re.I):
+                    self.secondUserID.set('999')
+                    self.l4.config(fg='green')
+                    self.currentSecondUser = '999'
+                    return True
+
+        if len(user_reg) < 1:
+            self.secondUserID.set('未识别')
+            self.l4.config(fg='red')
+            self.currentSecondUser = False
+        else:
+            self.secondUserID.set(f'没有识别到分身用户ID“999”')
+            self.l4.config(fg='orange')
+            self.currentSecondUser = False
 
     @deco
     def loadMainPackages(self):
