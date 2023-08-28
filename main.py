@@ -27,7 +27,7 @@ class Window:
         # self.root.resizable(width=False, height=False)
         screenwidth = self.root.winfo_screenwidth()
         screenheight = self.root.winfo_screenheight()
-        size = '%dx%d+%d+%d' % (700, 600, (screenwidth - 650) / 2, (screenheight - 600) / 2)
+        size = '%dx%d+%d+%d' % (900, 600, (screenwidth - 900) / 2, (screenheight - 600) / 2)
         self.root.geometry(size)
         self.notebookStatus = False
         self.currentSecondUser = False
@@ -236,8 +236,9 @@ class Window:
     def loadMainPackages(self):
         result = os.popen('adb shell pm list packages -3').read()
         packages = [re.search('package:(.*)', x).group(1) for x in result.split('\n') if re.search('package:(.*)', x)]
+        json.dump(packages, open("_my_installed_apps.json", 'w', encoding='utf-8'), indent=4)
         packages.sort()
-        with open('AppNames.json', 'r', encoding='UTF-8') as f:
+        with open('_app_names.json', 'r', encoding='UTF-8') as f:
             NameDict = json.load(f)
         self.mainAppList.delete(0, 'end')
         for i in packages:
@@ -256,7 +257,7 @@ class Window:
             result = os.popen(f'adb shell pm list packages -3 --user {self.currentSecondUser}').read()
             packages = [re.search('package:(.*)', x).group(1) for x in result.split('\n') if
                         re.search('package:(.*)', x)]
-            with open('AppNames.json', 'r', encoding='UTF-8') as f:
+            with open('_app_names.json', 'r', encoding='UTF-8') as f:
                 NameDict = json.load(f)
             self.secondAppList.delete(0, 'end')
             packages.sort()
