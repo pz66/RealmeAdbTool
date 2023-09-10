@@ -8,8 +8,8 @@ from tkinter import ttk, messagebox
 
 import windnd
 
-VERSION = "1.2.1"
-DATE = "2023/8/28"
+VERSION = "1.2.2"
+DATE = "2023/9/10"
 
 
 def deco(func):
