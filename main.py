@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import re
 import threading
 import tkinter as tk
@@ -16,8 +17,16 @@ def deco(func):
     def wrapper(*args):
         t = threading.Thread(target=func, args=(*args,))
         t.start()
-
     return wrapper
+
+
+def resource_path(relative_path):
+    if getattr(sys, 'frozen', False):  # 是否Bundle Resource
+        base_path = sys._MEIPASS
+    else:
+        # base_path = os.path.abspath(".")
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
 
 
 class Window:
@@ -43,7 +52,7 @@ class Window:
         tk.Label(frame_status, text='作者：小小张').pack(side='left')
 
         # 主界面中的小Frame
-        with open("help.txt", 'r', encoding="utf-8") as f:
+        with open(resource_path("res/help.txt"), 'r', encoding="utf-8") as f:
             info = f.read().strip()
         label_help = tk.Label(frame_root, text=info, justify='left', anchor='w')
         label_help.pack(fill='x', ipady=10)
@@ -148,7 +157,7 @@ class Window:
         for i in inf:
             tk.Label(frame_about_1, text=i, anchor='w', font=('微软雅黑', 10)).pack(fill='x')
 
-        img_gif = tk.PhotoImage(file=r'pyData.dll')
+        img_gif = tk.PhotoImage(file=resource_path('res/pyData.dll'))
         aaa = tk.Label(frame_about_2, text='微信', image=img_gif, anchor='w')
         aaa.pack(fill='x')
         aaa.image = img_gif
@@ -239,9 +248,9 @@ class Window:
     def loadMainPackages(self):
         result = os.popen('adb shell pm list packages -3').read()
         packages = [re.search('package:(.*)', x).group(1) for x in result.split('\n') if re.search('package:(.*)', x)]
-        json.dump(packages, open("_my_installed_apps.json", 'w', encoding='utf-8'), indent=4)
+        json.dump(packages, open(resource_path("res/_my_installed_apps.json"), 'w', encoding='utf-8'), indent=4)
         packages.sort()
-        with open('_app_names.json', 'r', encoding='UTF-8') as f:
+        with open(resource_path('res/_app_names.json'), 'r', encoding='UTF-8') as f:
             NameDict = json.load(f)
         self.mainAppList.delete(0, 'end')
         for i in packages:
@@ -260,7 +269,7 @@ class Window:
             result = os.popen(f'adb shell pm list packages -3 --user {self.currentSecondUser}').read()
             packages = [re.search('package:(.*)', x).group(1) for x in result.split('\n') if
                         re.search('package:(.*)', x)]
-            with open('_app_names.json', 'r', encoding='UTF-8') as f:
+            with open(resource_path('res/_app_names.json'), 'r', encoding='UTF-8') as f:
                 NameDict = json.load(f)
             self.secondAppList.delete(0, 'end')
             packages.sort()
@@ -409,6 +418,6 @@ class Window:
 
 if __name__ == '__main__':
     root = tk.Tk()
-    root.iconbitmap(default='pyico.dll')
+    root.iconbitmap(default=resource_path("res/ico.ico"))
     app = Window(root)
     root.mainloop()

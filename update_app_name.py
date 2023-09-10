@@ -49,11 +49,11 @@ def get_name_from_wandoujia(item):
 
 def main():
     try:
-        result = json.load(open("_app_names.json", 'r', encoding='utf-8'))
+        result = json.load(open("res/_app_names.json", 'r', encoding='utf-8'))
     except:
         result = dict()
     try:
-        packages = json.load(open("_my_installed_apps.json", 'r', encoding='utf-8'))
+        packages = json.load(open("res/_my_installed_apps.json", 'r', encoding='utf-8'))
     except:
         return
 
@@ -81,7 +81,7 @@ def main():
             print(each, "Not Found")
             continue
     result.update(NAMES)
-    json.dump(result, open("_app_names.json", 'w', encoding='utf-8'), indent=4)
+    json.dump(result, open("res/_app_names.json", 'w', encoding='utf-8'), indent=4)
     print("finish")
 
 
